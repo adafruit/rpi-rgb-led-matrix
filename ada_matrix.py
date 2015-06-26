@@ -33,7 +33,7 @@ class DriverAdaMatrix(DriverBase):
 
 # from bibliopixel import *
 # import bibliopixel.colors as colors
-# from ada-matrix import DriverAdaMatrix
+# from ada_matrix import DriverAdaMatrix
 
 # driver = DriverAdaMatrix(rows=32, chain=1)
 # driver.SetPWMBits(6) #decrease bit-depth for better performance
