@@ -87,7 +87,7 @@ static PyObject *SetPixel(RGBmatrixObject *self, PyObject *arg) {
 
 	switch(PyTuple_Size(arg)) {
 	   case 3: // X, Y, packed color
-		if((status = PyArg_ParseTuple(arg, "IIBBB", &x, &y, &c))) {
+		if((status = PyArg_ParseTuple(arg, "III", &x, &y, &c))) {
 			r = (c >> 16) & 0xFF;
 			g = (c >>  8) & 0xFF;
 			b =  c        & 0xFF;
