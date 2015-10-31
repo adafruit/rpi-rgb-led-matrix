@@ -292,13 +292,12 @@ static PyTypeObject RGBmatrixObjectType = {
 	0,                              // tp_free
 };
 
-static struct module_state _state;
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "rgbmatrix",
         NULL,
-        sizeof(struct module_state),
+        sizeof(RGBmatrixObject),
         PyMethodDef,
         NULL,
         NULL,
