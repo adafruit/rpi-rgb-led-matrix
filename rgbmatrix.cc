@@ -7,8 +7,8 @@
   and the SetImage method.
   ------------------------------------------------------------------------*/
 
-#include <python2.7/Python.h>
-#include <python2.7/Imaging.h>
+#include <python3.4m/Python.h>
+#include <python3.4m/Imaging.h>
 #include "led-matrix.h"
 
 using rgb_matrix::GPIO;
@@ -292,14 +292,29 @@ static PyTypeObject RGBmatrixObjectType = {
 	0,                              // tp_free
 };
 
+static struct module_state _state;
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "rgbmatrix",
+        NULL,
+        sizeof(struct module_state),
+        PyMethodDef,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
 PyMODINIT_FUNC initrgbmatrix(void) { // Module initialization function
         PyObject* m;
 
 	if(io.Init() &&    // Set up GPIO pins.  MUST run as root.
-          (m = Py_InitModule("rgbmatrix", methods)) &&
+          (m = PyModule_Create(&moduledef)) &&
           (PyType_Ready(&RGBmatrixObjectType) >= 0)) {
                 Py_INCREF(&RGBmatrixObjectType);
                 PyModule_AddObject(m, "Adafruit_RGBmatrix",
                   (PyObject *)&RGBmatrixObjectType);
         }
+        return m;
 }
