@@ -10,6 +10,7 @@
 #include <python2.7/Python.h>
 #include <python2.7/Imaging.h>
 #include "led-matrix.h"
+#include "graphics.h"
 
 using rgb_matrix::GPIO;
 using rgb_matrix::RGBMatrix;
@@ -17,8 +18,8 @@ using rgb_matrix::RGBMatrix;
 static GPIO io;
 
 typedef struct { // Python object for matrix
-	PyObject_HEAD
-	RGBMatrix *matrix;
+       PyObject_HEAD
+       RGBMatrix *matrix;
 } RGBmatrixObject;
 
 // Rows & chained display values are currently both required parameters.
@@ -105,7 +106,7 @@ static PyObject *SetPixel(RGBmatrixObject *self, PyObject *arg) {
 }
 
 // Copy whole display buffer to display from a list of bytes [R1,G1,B1,R2,G2,B2...]
-static PyObject *SetBuffer(RGBmatrixObject *self, PyObject *data) 
+static PyObject *SetBuffer(RGBmatrixObject *self, PyObject *data)
 {
 	Py_ssize_t count;
 	int        w, h, offset, y, x;
@@ -122,9 +123,9 @@ static PyObject *SetBuffer(RGBmatrixObject *self, PyObject *data)
 		return NULL;
 	}
 
-	for(y=0; y<h; y++) 
+	for(y=0; y<h; y++)
 	{
-		for(x=0; x<w; x++) 
+		for(x=0; x<w; x++)
 		{
 			offset = (y*w*3)+(x*3);
 			r = PyInt_AsLong(PyList_GetItem(data, offset));
@@ -249,6 +250,29 @@ static PyObject *SetWriteCycles(RGBmatrixObject *self, PyObject *arg) {
 	return Py_None;
 }
 
+static PyObject *DrawText(RGBmatrixObject *self, PyObject *arg) {
+	const char *bdf_font_file = NULL;
+	rgb_matrix::Font font;
+	uint32_t x, y;
+	uint8_t  r, g, b;
+	char *utf8_text; // NOTE this should be UTF-8 encoded text
+	if((PyTuple_Size(arg) == 7) &&
+	  PyArg_ParseTuple(arg, "sIIBBBs", &bdf_font_file, &x, &y, &r, &g, &b, &utf8_text)) {
+		rgb_matrix::Color color(r, g, b);
+		if (!font.LoadFont(bdf_font_file)) {
+			PyErr_SetString(PyExc_ValueError,
+			  "Can not read BDF font file.");
+			return NULL;
+		}
+		rgb_matrix::DrawText(
+		  self->matrix, font, x, y, color, utf8_text);
+	}
+	// TODO pass the integer returned by DrawText back to Python
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef methods[] = {
   { "Clear"         , (PyCFunction)Clear         , METH_NOARGS , NULL },
   { "Fill"          , (PyCFunction)Fill          , METH_VARARGS, NULL },
@@ -257,6 +281,7 @@ static PyMethodDef methods[] = {
   { "SetImage"      , (PyCFunction)SetImage      , METH_VARARGS, NULL },
   { "SetPWMBits"    , (PyCFunction)SetPWMBits    , METH_VARARGS, NULL },
   { "SetWriteCycles", (PyCFunction)SetWriteCycles, METH_VARARGS, NULL },
+  { "DrawText"      , (PyCFunction)DrawText      , METH_VARARGS, NULL },
   { NULL, NULL, 0, NULL }
 };
 

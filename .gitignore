@@ -1,6 +1,7 @@
 *.o
 *.a
 *.so
+*.sw[pc]
 /led-matrix
 /minimal-example
 /text-example
