@@ -265,7 +265,7 @@ static PyObject *DrawText(RGBmatrixObject *self, PyObject *arg) {
 			return NULL;
 		}
 		rgb_matrix::DrawText(
-		  self->matrix, font, x, y, color, utf8_text);
+		  self->matrix, font, x, y + font.baseline(), color, utf8_text);
 	}
 	// TODO pass the integer returned by DrawText back to Python
 
